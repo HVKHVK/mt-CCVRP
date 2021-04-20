@@ -1,15 +1,15 @@
 import math
 
-import pulp
 from pulp import *
 import numpy as np
 import random
 
 # variables
-n = 25  # number of node
-R = 10  # number of drones
-Q = 500  # capacity of the drones
+n = 49  # number of node
+R = 20  # number of drones
+Q = 480  # capacity of the drones
 w_unit = 5  # unit weight of the arc
+demand_limit = [60, 180]
 
 def create_node_map():
     # Assumption: map shape is square
@@ -45,7 +45,7 @@ def create_node_demand(weight_map):
                     dmap[i][j] = 0
                 else:
                     # dmap[i][j] = int(random.uniform(Q/10, np.floor(Q - 2 * np.max(weight_map))))
-                    dmap[i][j] = int(random.uniform(Q/10, Q/2))
+                    dmap[i][j] = int(random.uniform(demand_limit[0],demand_limit[1]))
         if sum(sum(dmap)) <= R*np.floor(Q - 2 * np.max(weight_map)):
             return dmap, dmap.flatten()
         else:
@@ -119,12 +119,12 @@ for r in car_list:
 print(model)
 model.writeLP("CheckLpProgram.lp")
 
-status = model.solve(pulp.PULP_CBC_CMD(timeLimit=600, gapRel=0, threads=4))
+status = model.solve(pulp.PULP_CBC_CMD(timeLimit=6000, gapRel=0, threads=8))
 # status = model.solve(CPLEX_CMD(timeLimit=600, gapRel=0))
-
-print(f"status: {model.status}, {LpStatus[model.status]}")
-print(f"objective: {model.objective.value()}")
 for var in model.variables():
     print(f"{var.name}: {var.value()}")
 for name, constraint in model.constraints.items():
     print(f"{name}: {constraint.value()}")
+
+print(f"status: {model.status}, {LpStatus[model.status]}")
+print(f"objective: {model.objective.value()}")
