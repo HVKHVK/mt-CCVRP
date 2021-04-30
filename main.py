@@ -5,8 +5,8 @@ import numpy as np
 import random
 
 # variables
-n = 49  # number of node
-R = 20  # number of drones
+n = 100  # number of node
+R = 2  # number of drones
 Q = 480  # capacity of the drones
 w_unit = 5  # unit weight of the arc
 demand_limit = [60, 180]
