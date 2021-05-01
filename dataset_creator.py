@@ -43,7 +43,7 @@ def create_node_demand(weight_map, n, R, Q, demand_limit):
         if sum(sum(dmap)) <= R*np.floor(Q - 2 * np.max(weight_map)):
             return True, dmap, dmap.flatten()
         else:
-            print("Cannot Cover")
+           # print("Cannot Cover")
             return False, 0, 0
 
 def create_multi_weight_map(weight_map, R):
@@ -111,12 +111,12 @@ def create_dataset(n, R, Q, w_unit, demand_limit):
     for r in car_list:
         for i in node_list:
             for j in node_list:
-                model += lpSum([x[r][i][j]+x[r][j][i]]) <= 1, "(7) For Vehicle %s Not Use Same Road %s %s Constraint"%(r, i, j)  # Constraint (5)
+                model += lpSum([x[r][i][j]+x[r][j][i]]) <= 2, "(7) For Vehicle %s Not Use Same Road %s %s Constraint"%(r, i, j)  # Constraint (5)
 
     # print(model)
     # model.writeLP("CheckLpProgram.lp")
 
-    status = model.solve(pulp.PULP_CBC_CMD(timeLimit=600, gapRel=0, threads=8))
+    status = model.solve(pulp.PULP_CBC_CMD(msg=False, timeLimit=600, gapRel=0, threads=8))
     # status = model.solve(CPLEX_CMD(timeLimit=600, gapRel=0))
     # for var in model.variables():
     #     print(f"{var.name}: {var.value()}")
@@ -128,26 +128,28 @@ def create_dataset(n, R, Q, w_unit, demand_limit):
     else:
         return -1, LpStatus[model.status]
 
+
     # print(f"status: {model.status}, {LpStatus[model.status]}")
     # print(f"objective: {model.objective.value()}")
 
 
 # variables
 n_list = [9, 16, 25, 36, 49, 64, 81, 100]  # number of node
-R_list = range(1, 51)  # number of drones
+R_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50]  # number of drones
 Q_list = [180, 240, 300, 360, 420, 480, 540, 600]  # capacity of the drones
 w_unit_list = [5, 10, 15, 20, 25, 30]  # unit weight of the arc
 demand_limits = [60, 180]
 
-df = pd.DataFrame(columns=['node_number', 'drone_number', 'capacity_of_drones', 'arc_weight', 'result', 'type'])
 
 for node in n_list:
+    df = pd.DataFrame(columns=['node_number', 'drone_number', 'capacity_of_drones', 'arc_weight', 'result', 'type'])
     for drone in R_list:
         for capacity in Q_list:
             for weight_unit in w_unit_list:
                 value, output_type = create_dataset(node, drone, capacity, weight_unit, demand_limits)
                 row = {'node_number': node, 'drone_number': drone, 'capacity_of_drones': capacity, 'arc_weight': weight_unit, 'result': value, 'type': output_type}
                 df = df.append(row, ignore_index=True)
-
-
-df.to_csv('output.csv')
+                print('-----------------------------------------------------')
+                print('Node {} Drone {} Capacity {} Weight {} Value {} Type {}'.format(node, drone, capacity, weight_unit, value, output_type))
+                print('-----------------------------------------------------')
+    df.to_csv('Output/output_{}.csv'.format(node))
