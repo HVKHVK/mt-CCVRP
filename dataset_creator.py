@@ -152,4 +152,4 @@ for node in n_list:
                 print('-----------------------------------------------------')
                 print('Node {} Drone {} Capacity {} Weight {} Value {} Type {}'.format(node, drone, capacity, weight_unit, value, output_type))
                 print('-----------------------------------------------------')
-    df.to_csv('Output/output_{}.csv'.format(node))
+    df.to_csv('Output_2/output_{}.csv'.format(node))
