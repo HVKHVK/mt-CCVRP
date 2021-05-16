@@ -140,7 +140,8 @@ Q_list = [180, 240, 300, 360, 420, 480, 540, 600]  # capacity of the drones
 w_unit_list = [5, 10, 15, 20, 25, 30]  # unit weight of the arc
 demand_limits = [60, 180]
 
-
+count_size = len(n_list) * len(R_list) * len(Q_list) * len(w_unit_list)
+turn = 0
 for node in n_list:
     df = pd.DataFrame(columns=['node_number', 'drone_number', 'capacity_of_drones', 'arc_weight', 'result', 'type'])
     for drone in R_list:
@@ -149,7 +150,7 @@ for node in n_list:
                 value, output_type = create_dataset(node, drone, capacity, weight_unit, demand_limits)
                 row = {'node_number': node, 'drone_number': drone, 'capacity_of_drones': capacity, 'arc_weight': weight_unit, 'result': value, 'type': output_type}
                 df = df.append(row, ignore_index=True)
+                turn += 1
+                print('Iteration {}% \nNode      {} \nDrone     {} \nCapacity  {} \nWeight    {} \nValue     {} \nType      {}'.format(round(turn*100/count_size,2),node, drone, capacity, weight_unit, value, output_type))
                 print('-----------------------------------------------------')
-                print('Node {} Drone {} Capacity {} Weight {} Value {} Type {}'.format(node, drone, capacity, weight_unit, value, output_type))
-                print('-----------------------------------------------------')
-    df.to_csv('Output_2/output_{}.csv'.format(node))
+    df.to_csv('Output_5/output_{}.csv'.format(node))
