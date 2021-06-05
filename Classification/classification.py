@@ -16,10 +16,12 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.neighbors import KNeighborsRegressor as KNR
 from sklearn.neighbors import KNeighborsClassifier as KNC
 from sklearn.ensemble import RandomForestClassifier as RFC
+from sklearn.neural_network import MLPClassifier as MLP
+
 from sklearn.ensemble import RandomForestRegressor as RFR
 from sklearn.metrics import mean_squared_error, accuracy_score
 
-models = 'RFC'
+models = 'MLP'
 
 if models == 'KNR':
 
@@ -108,6 +110,36 @@ if models == 'RFC':
     tt = y_test.to_numpy()
     acc = accuracy_score(tt, predictions)
     print(acc)
+
+if models == 'MLP':
+
+    data = data.replace(-1, 0)
+
+    data_values = data[['node_number', 'drone_number', 'capacity_of_drones', 'arc_weight']]
+    data_results = data['result']
+
+    x_train, x_test, y_train, y_test = train_test_split(data_values, data_results, test_size=.25, random_state=10)
+
+    search_params = [
+        {'hidden_layer_sizes': [3, 4, 5], 'learning_rate': ['constant', 'adaptive'], 'solver': ['sgd', 'adam']},
+    ]
+
+    model = GridSearchCV(
+        MLP(),
+        search_params,
+        cv=5,
+        n_jobs=-1,
+        scoring='accuracy',
+        verbose=4)
+
+    model.fit(x_train, y_train)
+    print(model.best_estimator_)
+
+    predictions = model.predict(x_test)
+    tt = y_test.to_numpy()
+    acc = accuracy_score(tt, predictions)
+    print(acc)
+
 import joblib
 
 joblib_file = models+".pkl"
